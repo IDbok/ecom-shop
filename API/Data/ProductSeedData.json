@@ -1,0 +1,66 @@
+[
+  {
+    "Id": 1,
+    "Article": "СМ-1Т.03.00.19",
+    "Name": "Монтажный стол однотумбовый СМ-1Т.03.00.19",
+    "PackagedWeight": 75.0,
+    "PackagedVolume": 0.85,
+    "Size": {
+      "Length": 1500.0,
+      "Width": 700.0,
+      "Height": 850.0
+    },
+    "DefaultColor": "RAL 7035",
+    "Category": "Монтажные столы",
+    "Description": "Металлический монтажный стол с одной тумбой и регулируемыми опорами.",
+    "ImageUrl": "https://metakon-zavod.ru/images/stories/scatalog/products/547/display/%D0%A1%D0%9C-1%D0%A2.03.00.19.jpg"
+  },
+  {
+    "Id": 2,
+    "Article": "СТИ-01.03.01",
+    "Name": "Инструментальная тележка СТИ-01.03.01",
+    "PackagedWeight": 45.0,
+    "PackagedVolume": 0.55,
+    "Size": {
+      "Length": 900.0,
+      "Width": 500.0,
+      "Height": 950.0
+    },
+    "DefaultColor": "RAL 5012",
+    "Category": "Инструментальные тележки",
+    "Description": "Открытая тележка для инструмента с экраном и тремя полками.",
+    "ImageUrl": "https://metakon-zavod.ru/images/stories/scatalog/products/278/display/%D0%A1%D0%A2%D0%98-01.03.01.jpg"
+  },
+  {
+    "Id": 3,
+    "Article": "СР-1800-5",
+    "Name": "Стеллаж разборный СР-1800-5",
+    "PackagedWeight": 30.0,
+    "PackagedVolume": 0.40,
+    "Size": {
+      "Length": 1000.0,
+      "Width": 400.0,
+      "Height": 1800.0
+    },
+    "DefaultColor": "RAL 7035",
+    "Category": "Стеллажи",
+    "Description": "Пятиполочный разборный стеллаж для склада и архива.",
+    "ImageUrl": "https://metakon-zavod.ru/images/stories/scatalog/products/337/display/3061.jpg"
+  },
+  {
+    "Id": 4,
+    "Article": "АР-8а",
+    "Name": "Шкаф архивный АР-8а",
+    "PackagedWeight": 55.0,
+    "PackagedVolume": 0.65,
+    "Size": {
+      "Length": 1000.0,
+      "Width": 435.0,
+      "Height": 1900.0
+    },
+    "DefaultColor": "RAL 7035",
+    "Category": "Архивные шкафы",
+    "Description": "Двухдверный архивный шкаф с полками для хранения папок.",
+    "ImageUrl": "https://metakon-zavod.ru/images/stories/scatalog/products/142/display/%D0%90%D0%A0-8%D0%B0.jpg"
+  }
+]

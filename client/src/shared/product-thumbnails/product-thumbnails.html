@@ -1,0 +1,17 @@
+<!-- Простые миниатюры -->
+@if (photos().length > 0) {
+  <div class="flex flex-col gap-2 w-20">
+    @for (photo of photos(); track photo.id) {
+      <div 
+        class="cursor-pointer border-2 rounded-lg overflow-hidden"
+        [class.border-blue-500]="selectedPhotoUrl() === photo.url"
+        [class.border-gray-200]="selectedPhotoUrl() !== photo.url"
+        (click)="selectPhoto(photo.url)">
+        <img 
+          src="{{photo.url}}" 
+          alt="thumbnail" 
+          class="w-full h-16 object-cover" />
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,224 @@
+@if(product(); as product) {
+<div class="card w-full bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="card-title text-primary">Edit Product Characteristics</h3>
+      <div class="flex gap-2">
+        <!-- <button 
+          class="btn btn-outline btn-sm" 
+          (click)="cancelEdit()"
+          [disabled]="isSaving()">
+          Cancel
+        </button> -->
+        <button 
+          class="btn btn-primary btn-sm" 
+          (click)="saveChanges()"
+          [disabled]="!isFormValid() || isSaving()"
+          [class.loading]="isSaving()">
+          @if(isSaving()) {
+            Saving...
+          } @else {
+            Save Changes
+          }
+        </button>
+      </div>
+    </div>
+
+    <form (ngSubmit)="saveChanges()" #editForm="ngForm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Article -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Article</span>
+          </label>
+          <input 
+            type="text" 
+            class="input input-bordered" 
+            [value]="formData().article"
+            (input)="onInputChange('article', $event)"
+            name="article"
+            placeholder="Enter article number">
+        </div>
+
+        <!-- Name -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Product Name <span class="text-error">*</span></span>
+          </label>
+          <input 
+            type="text" 
+            class="input input-bordered" 
+            [value]="formData().name"
+            (input)="onInputChange('name', $event)"
+            name="name"
+            required
+            placeholder="Enter product name">
+        </div>
+
+        <!-- Category -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Category</span>
+          </label>
+          <input 
+            type="text" 
+            class="input input-bordered" 
+            [value]="formData().category"
+            (input)="onInputChange('category', $event)"
+            name="category"
+            placeholder="Enter category">
+        </div>
+
+        <!-- Default Color -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Default Color</span>
+            <span class="label-text-alt text-gray-500">Format: RAL XXXX</span>
+          </label>
+          <input 
+            type="text" 
+            class="input input-bordered" 
+            [value]="formData().defaultColor"
+            (input)="onInputChange('defaultColor', $event)"
+            name="defaultColor"
+            pattern="^RAL\s?\d{4}$"
+            placeholder="RAL 9010">
+          @if(formData().defaultColor && !isValidColorFormat()) {
+            <label class="label">
+              <span class="label-text-alt text-error">Invalid format. Use RAL XXXX</span>
+            </label>
+          }
+        </div>
+
+        <!-- Weight -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Packaged Weight (kg)</span>
+          </label>
+          <input 
+            type="number" 
+            class="input input-bordered" 
+            [value]="formData().packagedWeight"
+            (input)="onInputChange('packagedWeight', $event)"
+            name="packagedWeight"
+            min="0"
+            step="0.01"
+            placeholder="0.00">
+        </div>
+
+        <!-- Volume -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Packaged Volume (m³)</span>
+          </label>
+          <input 
+            type="number" 
+            class="input input-bordered" 
+            [value]="formData().packagedVolume"
+            (input)="onInputChange('packagedVolume', $event)"
+            name="packagedVolume"
+            min="0"
+            step="0.001"
+            placeholder="0.000">
+        </div>
+      </div>
+
+      <!-- Dimensions Section -->
+      <div class="divider">Dimensions</div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Width -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Width (mm) <span class="text-error">*</span></span>
+          </label>
+          <input 
+            type="number" 
+            class="input input-bordered" 
+            [value]="formData().size.widthMm"
+            (input)="onDimensionChange('widthMm', $event)"
+            name="widthMm"
+            required
+            min="0"
+            step="0.1"
+            placeholder="0.0">
+        </div>
+
+        <!-- Height -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Height (mm) <span class="text-error">*</span></span>
+          </label>
+          <input 
+            type="number" 
+            class="input input-bordered" 
+            [value]="formData().size.heightMm"
+            (input)="onDimensionChange('heightMm', $event)"
+            name="heightMm"
+            required
+            min="0"
+            step="0.1"
+            placeholder="0.0">
+        </div>
+
+        <!-- Depth -->
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">Depth (mm) <span class="text-error">*</span></span>
+          </label>
+          <input 
+            type="number" 
+            class="input input-bordered" 
+            [value]="formData().size.depthMm"
+            (input)="onDimensionChange('depthMm', $event)"
+            name="depthMm"
+            required
+            min="0"
+            step="0.1"
+            placeholder="0.0">
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      <div class="divider">Description</div>
+      
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-medium">Product Description</span>
+        </label>
+        <textarea 
+          class="textarea textarea-bordered h-24" 
+          [value]="formData().description"
+          (input)="onInputChange('description', $event)"
+          name="description"
+          placeholder="Enter detailed product description..."></textarea>
+      </div>
+
+      @if(errorMessage()) {
+        <div class="alert alert-error mt-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      @if(successMessage()) {
+        <div class="alert alert-success mt-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ successMessage() }}</span>
+        </div>
+      }
+    </form>
+  </div>
+</div>
+}
+
+@if(!product()) {
+<div class="flex justify-center items-center h-32">
+  <span class="loading loading-spinner loading-lg text-primary"></span>
+</div>
+}

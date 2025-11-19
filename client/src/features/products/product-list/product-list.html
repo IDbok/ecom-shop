@@ -1,0 +1,5 @@
+<div class="grid grid-cols-5 gap-6">
+    @for (product of products$ | async; track product.id){
+        <app-product-card [product]="product"/>
+    }
+</div>

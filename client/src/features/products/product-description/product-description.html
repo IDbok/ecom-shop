@@ -1,0 +1,33 @@
+@if(productService.currentProduct(); as product) {
+<div class="space-y-6">  
+  <!-- Характеристики продукта -->
+  <div class="bg-base-200 rounded-lg p-4">
+    <h4 class="text-lg font-semibold text-primary mb-3">Specifications</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      @for(char of characteristics(); track char.label) {
+        <div class="flex justify-between items-center p-2 bg-base-100 rounded">
+          <span class="font-medium text-gray-600">{{ char.label }}:</span>
+          <span class="text-gray-900">
+            {{ char.value }}
+            @if(char.unit) {
+              <span class="text-gray-500 text-sm ml-1">{{ char.unit }}</span>
+            }
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Описание продукта -->
+  @if(product.description) {
+    <div class="bg-base-200 rounded-lg p-4">
+      <h4 class="text-lg font-semibold text-primary mb-3">Description</h4>
+      <p class="text-base leading-relaxed">{{ product.description }}</p>
+    </div>
+  }
+</div>
+} @else {
+    <div class="flex justify-center items-center h-32">
+        <span class="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+}

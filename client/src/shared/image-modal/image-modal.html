@@ -1,0 +1,61 @@
+@if (imageModalService.isVisible()) {
+  <div 
+    class="fixed inset-0 image-modal-backdrop flex items-center justify-center z-50"
+    (click)="closeModal()">
+    
+    <!-- Контейнер изображения -->
+    <div 
+      class="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center" 
+      (click)="$event.stopPropagation()"
+      (touchstart)="onTouchStart($event)"
+      (touchend)="onTouchEnd($event)">
+      
+      <!-- Кнопка закрытия -->
+      <button 
+        class="absolute top-4 right-4 btn btn-circle btn-ghost text-white image-modal-nav-btn z-10"
+        (click)="closeModal()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      
+      <!-- Навигация назад -->
+      @if (imageModalService.totalImages() > 1) {
+        <button 
+          class="absolute left-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-ghost text-white image-modal-nav-btn"
+          (click)="prevImage()">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+      }
+      
+      <!-- Изображение -->
+      @if (imageModalService.currentImage(); as image) {
+        <img 
+          src="{{getImageUrl(image)}}" 
+          alt="Full size image" 
+          class="max-w-full max-h-full object-contain rounded-lg image-modal-image"
+        />
+      }
+      
+      <!-- Навигация вперед -->
+      @if (imageModalService.totalImages() > 1) {
+        <button 
+          class="absolute right-4 top-1/2 transform -translate-y-1/2 btn btn-circle btn-ghost text-white image-modal-nav-btn"
+          (click)="nextImage()">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      }
+      
+      <!-- Индикатор позиции -->
+      @if (imageModalService.totalImages() > 1) {
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white px-4 py-2 rounded-full text-sm image-modal-position">
+          {{imageModalService.currentIndex() + 1}} / {{imageModalService.totalImages()}}
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,52 @@
+/* Стили для миниатюр изображений */
+
+.thumbnail-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.thumbnail-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thumbnail-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thumbnail-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.thumbnail-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Плавные переходы для миниатюр */
+.thumbnail-item {
+  transition: all 0.2s ease;
+}
+
+.thumbnail-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thumbnail-item.selected {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 2px hsl(var(--primary));
+}
+
+/* Стили для главного изображения */
+.main-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.main-image-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}

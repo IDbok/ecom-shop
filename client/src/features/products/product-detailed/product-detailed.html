@@ -1,0 +1,93 @@
+@if(productService.currentProduct(); as product){
+<div class="flex gap-6">
+    <div class="card bg-base-100 flex h-[85vh] w-2/4">
+        <!-- Миниатюры слева -->
+        @if (photos().length > 1) {
+            <div class="p-4 flex flex-col gap-2 w-20">
+                @for (photo of photos(); track photo.id) {
+                    <div 
+                        class="cursor-pointer border-2 rounded-lg overflow-hidden"
+                        [class.border-blue-500]="selectedImageUrl() === photo.url"
+                        [class.border-gray-200]="selectedImageUrl() !== photo.url"
+                        (click)="onPhotoSelected(photo.url)">
+                        <img 
+                            src="{{photo.url}}" 
+                            alt="thumbnail" 
+                            class="w-full h-16 object-cover" />
+                    </div>
+                }
+            </div>
+        }
+        
+        <!-- Основное изображение -->
+        <div class="flex-1 flex items-center justify-center p-4">
+            <img 
+              src="{{getCurrentImage()}}" 
+              alt="image of product"
+              class="max-w-full max-h-full object-contain rounded-2xl cursor-pointer hover:opacity-90 transition-opacity" 
+              (click)="openMainImageModal()" />
+        </div>
+    </div>
+
+    <div class="card bg-base-100 w-3/4 p-6">
+        <div class="flex justify-between items-center">
+            <div class="flex text-2xl text-primary">
+                {{product.name}}@if(product.article && product.article.trim())
+                { ({{product.article}}) }
+            </div>
+            @if(isAdmin()){
+                @if(!editModeEnabled()){
+                    <button 
+                        class="btn btn-outline btn-primary"
+                        (click)="navigateToEdit()">
+                        Edit
+                    </button>
+                } @else {
+                    <button 
+                        class="btn btn-outline btn-sm" 
+                        (click)="exitEditMode()">
+                        Cancel
+                    </button>
+                }
+            }
+        </div>
+        <div class="divider"></div>
+        
+        <!-- Навигационные вкладки -->
+        @if(editModeEnabled()) {
+        <div class="flex gap-4 mb-4">
+            <!-- <button 
+                class="btn btn-sm"
+                [class.btn-active]="currentRoute().endsWith('/description')"
+                (click)="navigateToDescription()">
+                Description
+            </button> -->
+            @if(isAdmin()){
+                <button 
+                    class="btn btn-sm"
+                    [class.btn-active]="currentRoute().endsWith('/edit')"
+                    (click)="navigateToEdit()">
+                    Edit
+                </button>
+                <button 
+                    class="btn btn-sm"
+                    [class.btn-active]="currentRoute().endsWith('/photos')"
+                    (click)="navigateToPhotos()">
+                    Photos
+                </button>
+                <button 
+                    class="btn btn-sm"
+                    [disabled]="true">
+                    Prices
+                </button>
+            }
+        </div>
+        }
+        
+        <div>
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>
+
+}
