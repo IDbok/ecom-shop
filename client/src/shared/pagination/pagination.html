@@ -1,0 +1,89 @@
+<!-- Pagination Component -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+  <!-- Информация о текущей странице -->
+  <div class="text-sm text-gray-600">
+    Показано {{ pagedData().firstItemIndex }}-{{ pagedData().lastItemIndex }} 
+    из {{ pagedData().count }} результатов
+  </div>
+  
+  <!-- Навигация по страницам -->
+  @if (pagedData().totalPages > 1) {
+    <div class="join">
+      <!-- Кнопка "Первая страница" -->
+      @if (showFirstPage()) {
+        <button 
+          class="join-item btn btn-sm"
+          (click)="onFirst()"
+          [disabled]="!pagedData().hasPrevious">
+          ««
+        </button>
+      }
+      
+      <!-- Кнопка "Предыдущая" -->
+      <button 
+        class="join-item btn btn-sm"
+        (click)="onPrevious()"
+        [disabled]="!pagedData().hasPrevious">
+        «
+      </button>
+      
+      <!-- Первая страница с многоточием -->
+      @if (showFirstEllipsis()) {
+        <button class="join-item btn btn-sm" (click)="onPageClick(1)">1</button>
+        <span class="join-item btn btn-sm btn-disabled">...</span>
+      }
+      
+      <!-- Страницы -->
+      @for (page of pages(); track page) {
+        <button 
+          class="join-item btn btn-sm"
+          [class.btn-active]="page === pagedData().pageIndex"
+          (click)="onPageClick(page)">
+          {{ page }}
+        </button>
+      }
+      
+      <!-- Последняя страница с многоточием -->
+      @if (showLastEllipsis()) {
+        <span class="join-item btn btn-sm btn-disabled">...</span>
+        <button 
+          class="join-item btn btn-sm" 
+          (click)="onPageClick(pagedData().totalPages)">
+          {{ pagedData().totalPages }}
+        </button>
+      }
+      
+      <!-- Кнопка "Следующая" -->
+      <button 
+        class="join-item btn btn-sm"
+        (click)="onNext()"
+        [disabled]="!pagedData().hasNext">
+        »
+      </button>
+      
+      <!-- Кнопка "Последняя страница" -->
+      @if (showLastPage()) {
+        <button 
+          class="join-item btn btn-sm"
+          (click)="onLast()"
+          [disabled]="!pagedData().hasNext">
+          »»
+        </button>
+      }
+    </div>
+  }
+  
+  <!-- Селектор размера страницы -->
+  <div class="flex items-center gap-2">
+    <span class="text-sm text-gray-600">Элементов на странице:</span>
+    <select 
+      class="select select-sm select-bordered"
+      [value]="pagedData().pageSize"
+      (change)="onPageSizeChange($event)">
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+    </select>
+  </div>
+</div>

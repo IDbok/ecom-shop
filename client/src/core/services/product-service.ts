@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Product, UpdateProductDto, PriceUpdateDto } from '../../types/product';
 import { Photo } from '../../types/photo';
+import { ProductFilter, ProductFilterQuery, PagedResult } from '../../types/product-filter';
 import { firstValueFrom, Observable, tap } from 'rxjs';
 
 @Injectable({
@@ -46,6 +47,59 @@ export class ProductService {
     return this.http.get<Product[]>(this.baseUrl + 'products').pipe(
       tap(products => this.products.set(products))
     );
+  }
+
+  /**
+   * Получить список продуктов с фильтрацией и пагинацией
+   */
+  getProductsWithFilters(filters: ProductFilter): Observable<PagedResult<Product>> {
+    let params = new HttpParams();
+
+    // Добавляем параметры фильтрации
+    if (filters.categories?.length) {
+      filters.categories.forEach(category => {
+        params = params.append('categories', category);
+      });
+    }
+
+    if (filters.priceRange?.min !== undefined) {
+      params = params.set('minPrice', filters.priceRange.min.toString());
+    }
+
+    if (filters.priceRange?.max !== undefined) {
+      params = params.set('maxPrice', filters.priceRange.max.toString());
+    }
+
+    if (filters.searchQuery?.trim()) {
+      params = params.set('searchQuery', filters.searchQuery.trim());
+    }
+
+    if (filters.sortBy) {
+      params = params.set('sortBy', filters.sortBy);
+    }
+
+    if (filters.sortOrder) {
+      params = params.set('sortOrder', filters.sortOrder);
+    }
+
+    if (filters.currency) {
+      params = params.set('currency', filters.currency);
+    }
+
+    // Добавляем параметры пагинации
+    params = params.set('pageIndex', filters.pageIndex.toString());
+    params = params.set('pageSize', filters.pageSize.toString());
+
+    return this.http.get<PagedResult<Product>>(this.baseUrl + 'products', { params }).pipe(
+      tap(result => this.products.set(result.data))
+    );
+  }
+
+  /**
+   * Получить список доступных категорий
+   */
+  getCategories(): Observable<string[]> {
+    return this.http.get<string[]>(this.baseUrl + 'products/categories');
   }
 
   /**

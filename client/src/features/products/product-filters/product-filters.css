@@ -1,0 +1,35 @@
+/* Минимальный кастомный CSS для ProductFilters - используем Tailwind в HTML */
+
+/* Анимация для toggle button */
+.toggle-button svg {
+  transition: transform 0.2s ease;
+}
+
+.toggle-button.expanded svg {
+  transform: rotate(180deg);
+}
+
+/* Анимация для контента фильтров */
+.filter-content {
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.filter-content.collapsed {
+  max-height: 0 !important;
+}
+
+/* Кастомная высота для списка категорий */
+.category-list {
+  max-height: 180px;
+}
+
+@media (max-width: 768px) {
+  .category-list {
+    max-height: 120px;
+  }
+  
+  .filter-content {
+    max-height: 300px;
+  }
+}

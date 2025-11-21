@@ -1,14 +1,16 @@
 @if (product(); as product) {
 <div routerLink="{{product.id}}"
 class="card cursor-pointer transition-all duration-300 ease-in-out 
-transform hover:-translate-y-2 hover:shadow-xl">
-    <img src="{{product.imageUrl || '/user.png'}}" alt="{{product.article}} image" class="rounded-lg">
+transform hover:-translate-y-1 hover:shadow-lg relative overflow-hidden rounded-lg bg-white">
+    <img src="{{product.imageUrl || '/user.png'}}" 
+         alt="{{product.article}} image" 
+         class="w-full h-48 object-cover rounded-t-lg">
     <div class="card-actions z-40 
-    absolute bottom-0 w-full px-3 py-1 rounded-b-lg
+    absolute bottom-0 w-full px-2 py-2 rounded-b-lg
     bg-gradient-to-t from-black via-black/75 to-black/0
     ">
         <div class="flex flex-col text-white">
-            <span class="font-semibold">{{product.name}}</span>
+            <span class="font-medium text-sm truncate">{{product.name}}</span>
         </div>
     </div>
 </div>

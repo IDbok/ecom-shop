@@ -12,9 +12,52 @@ namespace API.Controllers
         IPhotoService photoService) : BaseApiController
     {
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts()
+        public async Task<ActionResult<Helpers.Pagination<Product>>> GetProducts(
+            [FromQuery] List<string>? categories,
+            [FromQuery] long? minPrice,
+            [FromQuery] long? maxPrice,
+            [FromQuery] string? searchQuery,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortOrder,
+            [FromQuery] string? currency,
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
         {
-            return Ok(await ProductRepository.GetProductsAsync());
+            // Валидация параметров пагинации
+            pageIndex = Math.Max(1, pageIndex);
+            pageSize = Math.Clamp(pageSize, 1, 100); // Ограничиваем размер страницы от 1 до 100
+            
+            // Создаем DTO из отдельных параметров
+            var filters = new ProductFilterDto
+            {
+                Categories = categories,
+                MinPrice = minPrice,
+                MaxPrice = maxPrice,
+                SearchQuery = searchQuery,
+                SortBy = sortBy,
+                SortOrder = sortOrder,
+                Currency = currency,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
+
+            var pagedProducts = await ProductRepository.GetProductsAsync(filters);
+            
+            return Ok(pagedProducts);
+        }
+
+        [HttpGet("test-search")]
+        public async Task<ActionResult<IReadOnlyList<Product>>> TestSearch([FromQuery] string? searchQuery)
+        {
+            if (string.IsNullOrWhiteSpace(searchQuery))
+            {
+                return Ok(await ProductRepository.GetProductsAsync());
+            }
+            
+            var filters = new ProductFilterDto { SearchQuery = searchQuery };
+            var products = await ProductRepository.GetProductsAsync(filters);
+            
+            return Ok(products);
         }
 
         [HttpGet("{id:long:min(1)}")]
@@ -30,6 +73,20 @@ namespace API.Controllers
         public async Task<ActionResult<IReadOnlyList<Photo>>> GetPhotosForProduct(long id)
         {
             return Ok(await ProductRepository.GetPhotosForProductAsync(id));
+        }
+
+        [HttpGet("categories")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetCategories()
+        {
+            var products = await ProductRepository.GetProductsAsync();
+            var categories = products
+                .Where(p => !string.IsNullOrWhiteSpace(p.Category))
+                .Select(p => p.Category!)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToList();
+            
+            return Ok(categories);
         }
 
         [HttpPut]

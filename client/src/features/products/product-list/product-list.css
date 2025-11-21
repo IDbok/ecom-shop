@@ -1,0 +1,44 @@
+/* Минимальный кастомный CSS - большинство стилей теперь в HTML через Tailwind */
+
+/* Анимация для спиннера */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Плавные переходы для sidebar на мобильных */
+.filters-sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+.mobile-overlay {
+  backdrop-filter: blur(2px);
+}
+
+/* Кастомные grid breakpoints для продуктов */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
