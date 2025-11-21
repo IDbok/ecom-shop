@@ -484,5 +484,5 @@ $RECYCLE.BIN/
 *.swp
 
 API/appsettings.json
-API/dating.db*
+API/ecom.db*
 StudentAssets*
