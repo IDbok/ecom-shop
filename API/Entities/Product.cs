@@ -22,8 +22,10 @@ public class Product
     public string? Category { get; set; }
     public string? Description { get; set; }
     public string? ImageUrl { get; set; }
+    public string? SourceUrl { get; set; }
+    
     [JsonIgnore]
-    public List<Photo> Photos { get; set; } = [];
+    public List<Asset> Assets { get; set; } = [];
 }
 
 [Owned]

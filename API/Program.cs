@@ -18,7 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 builder.Services.AddCors();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IAssetService, AssetService>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration

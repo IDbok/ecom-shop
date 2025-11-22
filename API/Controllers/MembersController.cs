@@ -8,8 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Authorize]
-    public class MembersController(IMemberRepository memberRepository,
-        IPhotoService photoService) : BaseApiController
+    public class MembersController(IMemberRepository memberRepository) : BaseApiController
     {
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Member>>> GetMembers()
@@ -26,11 +25,11 @@ namespace API.Controllers
             return member;
         }
 
-        [HttpGet("{id}/photos")]
-        public async Task<ActionResult<IReadOnlyList<Photo>>> GetPhotosForMember(string id)
-        {
-            return Ok(await memberRepository.GetPhotosForMemberAsync(id));
-        }
+        // [HttpGet("{id}/assets")]
+        // public async Task<ActionResult<IReadOnlyList<Asset>>> GetAssetsForMember(string id)
+        // {
+        //     return Ok(await memberRepository.GetAssetsForMemberAsync(id));
+        // }
 
         [HttpPut]
         public async Task<ActionResult> UpdateMember(MemberUpdateDto memberUpdateDto)
@@ -71,96 +70,35 @@ namespace API.Controllers
             return BadRequest("Failed to update member");
         }
 
-        [HttpPost("add-photo")]
-        public async Task<ActionResult<Photo>> AddPhoto([FromForm] IFormFile file)
-        {
-            var memberId = User.GetUserId();
-            var member = await memberRepository.GetMemberForUpdateAsync(memberId);
-            if (member == null) return NotFound();
+        // [HttpPost("add-asset")]
+        // public async Task<ActionResult<Asset>> AddAsset([FromForm] IFormFile file)
+        // {
+        //     var memberId = User.GetUserId();
+        //     var member = await memberRepository.GetMemberForUpdateAsync(memberId);
+        //     if (member == null) return NotFound();
+        //
+        //     var result = await assetService.UploadFileAsync(file);
+        //
+        //     if (!result.IsSuccess) return BadRequest("Failed to upload file");
+        //
+        //     // TODO: Implement asset creation logic
+        //
+        //     return BadRequest("Problem adding asset");
+        // }
 
-            var result = await photoService.UploadPhotoAsync(file);
+        // [HttpPut("set-main-asset/{assetId}")]
+        // public async Task<ActionResult> SetMainAsset(int assetId)
+        // {
+        //     // TODO: Implement asset management for members
+        //     return BadRequest("Not implemented");
+        // }
 
-            if (result.Error != null) return BadRequest(result.Error.Message);
-
-            // var photo = new Photo
-            // {
-            //     Url = result.SecureUrl.AbsoluteUri,
-            //     PublicId = result.PublicId,
-            //     ProductId = member.Id
-            // };
-
-            // if (member.ImageUrl == null)
-            // {
-            //     member.ImageUrl = photo.Url;
-            //     member.AppUser.ImageUrl = photo.Url;
-            // }
-
-            // member.Photos.Add(photo);
-
-            // if (await memberRepository.SaveAllAsync())
-            // {
-            //     return CreatedAtAction(nameof(GetMember), new { id = member.Id }, photo);
-            // }
-
-            return BadRequest("Problem adding photo");
-        }
-
-        [HttpPut("set-main-photo/{photoId}")]
-        public async Task<ActionResult> SetMainPhoto(int photoId)
-        {
-            var memberId = User.GetUserId();
-            var member = await memberRepository.GetMemberForUpdateAsync(memberId);
-            if (member == null) return NotFound("Member not found");
-
-            var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
-            if (photo == null) return NotFound("Photo not found");
-
-            if (member.ImageUrl == photo.Url)
-            {
-                return BadRequest("This is already your main photo");
-            }
-
-            member.ImageUrl = photo.Url;
-            member.AppUser.ImageUrl = photo.Url;
-
-            if (await memberRepository.SaveAllAsync())
-            {
-                return NoContent();
-            }
-
-            return BadRequest("Problem setting main photo");
-        }
-
-        [HttpDelete("delete-photo/{photoId}")]
-        public async Task<ActionResult> DeletePhoto(int photoId)
-        {
-            var memberId = User.GetUserId();
-            var member = await memberRepository.GetMemberForUpdateAsync(memberId);
-            if (member == null) return NotFound("Member not found");
-
-            var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
-            if (photo == null) return NotFound("Photo not found");
-
-            if (member.ImageUrl == photo.Url)
-            {
-                return BadRequest("You cannot delete your main photo");
-            }
-
-            if (photo.PublicId != null)
-            {
-                var result = await photoService.DeletePhotoAsync(photo.PublicId);
-                if (result.Error != null) return BadRequest(result.Error.Message);
-            }
-
-            member.Photos.Remove(photo);
-
-            if (await memberRepository.SaveAllAsync())
-            {
-                return Ok();
-            }
-
-            return BadRequest("Problem deleting the photo");
-        }
+        // [HttpDelete("delete-asset/{assetId}")]
+        // public async Task<ActionResult> DeleteAsset(int assetId)
+        // {
+        //     // TODO: Implement asset deletion for members  
+        //     return BadRequest("Not implemented");
+        // }
     }
 
 

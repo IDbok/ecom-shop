@@ -1,14 +1,14 @@
 <!-- Простые миниатюры -->
-@if (photos().length > 0) {
+@if (assets().length > 0) {
   <div class="flex flex-col gap-2 w-20">
-    @for (photo of photos(); track photo.id) {
+    @for (asset of assets(); track asset.id) {
       <div 
         class="cursor-pointer border-2 rounded-lg overflow-hidden"
-        [class.border-blue-500]="selectedPhotoUrl() === photo.url"
-        [class.border-gray-200]="selectedPhotoUrl() !== photo.url"
-        (click)="selectPhoto(photo.url)">
+        [class.border-blue-500]="selectedAssetUrl() === asset.url"
+        [class.border-gray-200]="selectedAssetUrl() !== asset.url"
+        (click)="selectAsset(asset.url)">
         <img 
-          src="{{photo.url}}" 
+          src="{{asset.thumbnailUrl || asset.url}}" 
           alt="thumbnail" 
           class="w-full h-16 object-cover" />
       </div>

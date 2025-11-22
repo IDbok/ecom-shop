@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Product, UpdateProductDto, PriceUpdateDto } from '../../types/product';
-import { Photo } from '../../types/photo';
+import { Asset, AssetType } from '../../types/asset';
 import { ProductFilter, ProductFilterQuery, PagedResult } from '../../types/product-filter';
 import { firstValueFrom, Observable, tap } from 'rxjs';
 
@@ -115,12 +115,12 @@ export class ProductService {
     
     return this.http.get<Product>(url);
   }
-
+  
   /**
-   * Получить фотографии продукта
+   * Получить только изображения продукта
    */
-  getProductPhotos(id: number): Observable<Photo[]> {
-    return this.http.get<Photo[]>(this.baseUrl + 'products/' + id + '/photos');
+  getProductImages(id: number): Observable<Asset[]> {
+    return this.http.get<Asset[]>(this.baseUrl + 'products/' + id + '/photos');
   }
 
   /**
@@ -157,51 +157,51 @@ export class ProductService {
   /**
    * Добавить фотографию к продукту
    */
-  addPhoto(productId: number, file: File): Observable<Photo> {
+  addAsset(productId: number, file: File): Observable<Asset> {
     const formData = new FormData();
     formData.append('file', file);
     
-    return this.http.post<Photo>(this.baseUrl + 'products/' + productId + '/add-photo', formData).pipe(
-      tap(photo => {
-        // Добавляем фото в текущий продукт
+    return this.http.post<Asset>(this.baseUrl + 'products/' + productId + '/add-asset', formData).pipe(
+      tap(asset => {
+        // Добавляем ассет в текущий продукт
         const current = this.currentProduct();
         if (current && current.id === productId) {
-          const updatedPhotos = [...(current.photos || []), photo];
-          //this.currentProduct.set({ ...current, photos: updatedPhotos });
+          const updatedAssets = [...(current.assets || []), asset];
+          this.currentProduct.set({ ...current, assets: updatedAssets });
         }
       })
     );
   }
 
   /**
-   * Установить главную фотографию
+   * Установить главное изображение
    */
-  setMainPhoto(photo: Photo): Observable<void> {
-    return this.http.put<void>(this.baseUrl + 'products/set-main-photo/' + photo.id, {}).pipe(
+  setMainAsset(asset: Asset): Observable<void> {
+    return this.http.put<void>(this.baseUrl + 'products/set-main-asset/' + asset.id, {}).pipe(
       tap(() => {
-        // Обновляем главное фото в текущем продукте
+        // Обновляем главное изображение в текущем продукте
         const current = this.currentProduct();
-        if (current && current.photos?.some(p => p.id === photo.id)) {
-          this.currentProduct.set({ ...current, imageUrl: photo.url });
+        if (current && current.assets?.some((a: Asset) => a.id === asset.id)) {
+          this.currentProduct.set({ ...current, imageUrl: asset.url });
         }
       })
     );
   }
 
   /**
-   * Удалить фотографию
+   * Удалить ассет (файл)
    */
-  deletePhoto(photo: Photo): Observable<void> {
-    return this.http.delete<void>(this.baseUrl + 'products/delete-photo/' + photo.id).pipe(
+  deleteAsset(asset: Asset): Observable<void> {
+    return this.http.delete<void>(this.baseUrl + 'products/delete-asset/' + asset.id).pipe(
       tap(() => {
-        // Удаляем фото из текущего продукта
+        // Удаляем ассет из текущего продукта
         const current = this.currentProduct();
-        if (current && current.photos) {
-          const updatedPhotos = current.photos.filter(p => p.id !== photo.id);
-          const updatedProduct = { ...current, photos: updatedPhotos };
+        if (current && current.assets) {
+          const updatedAssets = current.assets.filter((a: Asset) => a.id !== asset.id);
+          const updatedProduct = { ...current, assets: updatedAssets };
           
-          // Если удаляемое фото было главным, очищаем imageUrl
-          if (current.imageUrl === photo.url) {
+          // Если удаляемый ассет был главным изображением, очищаем imageUrl
+          if (current.imageUrl === asset.url) {
             updatedProduct.imageUrl = undefined;
           }
           

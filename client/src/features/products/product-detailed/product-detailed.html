@@ -1,9 +1,9 @@
 @if(productService.currentProduct(); as product){
 <div class="flex gap-6">
-    <div class="card bg-base-100 flex h-[85vh] w-2/4">
+    <div class="card bg-base-100 flex flex-row items-start h-[85vh] w-2/4">
         <!-- Миниатюры слева -->
         @if (photos().length > 1) {
-            <div class="p-4 flex flex-col gap-2 w-20">
+            <div class="p-4 flex flex-col gap-2 w-20 flex-shrink-0">
                 @for (photo of photos(); track photo.id) {
                     <div 
                         class="cursor-pointer border-2 rounded-lg overflow-hidden"
@@ -11,7 +11,7 @@
                         [class.border-gray-200]="selectedImageUrl() !== photo.url"
                         (click)="onPhotoSelected(photo.url)">
                         <img 
-                            src="{{photo.url}}" 
+                            src="{{photo.thumbnailUrl}}" 
                             alt="thumbnail" 
                             class="w-full h-16 object-cover" />
                     </div>
@@ -20,7 +20,8 @@
         }
         
         <!-- Основное изображение -->
-        <div class="flex-1 flex items-center justify-center p-4">
+        <div class="flex-1 flex items-center justify-center p-4 
+            border-2 rounded-lg">
             <img 
               src="{{getCurrentImage()}}" 
               alt="image of product"

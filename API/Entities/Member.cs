@@ -15,9 +15,6 @@ public class Member
     public required string Gender { get; set; }
     public required string City { get; set; }
     public required string Country { get; set; }
-
-    [JsonIgnore]
-    public List<Photo> Photos { get; set; } = [];
     
     [JsonIgnore]
     [ForeignKey("Id")]

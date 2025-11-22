@@ -16,19 +16,12 @@ public class MemberRepository(AppDbContext context) : IMemberRepository
     {
         return await context.Members
             .Include(m => m.AppUser)
-            .Include(m => m.Photos)
             .FirstOrDefaultAsync(m => m.Id == id);
     }
 
     public async Task<IReadOnlyList<Member>> GetMembersAsync()
     {
         return await context.Members.ToListAsync();
-    }
-
-    public Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId)
-    {
-        // return await context.Photos.Where(p => p.ProductId == memberId).ToListAsync();
-        throw new NotImplementedException();
     }
 
     public async Task<bool> SaveAllAsync()

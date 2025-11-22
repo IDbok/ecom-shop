@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { Product } from '../../../types/product';
-import { Photo } from '../../../types/photo';
+import { Asset } from '../../../types/asset';
 import { filter, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { ProductService } from '../../../core/services/product-service';
@@ -24,7 +24,7 @@ export class ProductDetailed implements OnInit, OnDestroy {
   protected editModeEnabled = signal(false); // Новый сигнал для управления доступом к вкладкам
   
   // Для миниатюр
-  protected photos = signal<Photo[]>([]);
+  protected photos = signal<Asset[]>([]);
   protected selectedImageUrl = signal<string>('');
   
   // Subject для автоматической отписки
@@ -119,21 +119,21 @@ export class ProductDetailed implements OnInit, OnDestroy {
     }
   }
 
-  // Простая загрузка фотографий
+  // Простая загрузка изображений
   private loadPhotos(product: Product): void {
     if (product?.id) {
-      this.productService.getProductPhotos(product.id).subscribe({
-        next: (photos: Photo[]) => {
-          this.photos.set(photos);
+      this.productService.getProductImages(product.id).subscribe({
+        next: (assets: Asset[]) => {
+          this.photos.set(assets);
           // Устанавливаем первое изображение как выбранное
-          if (photos.length > 0) {
-            this.selectedImageUrl.set(photos[0].url);
+          if (assets.length > 0) {
+            this.selectedImageUrl.set(assets[0].url);
           } else if (product.imageUrl) {
             this.selectedImageUrl.set(product.imageUrl);
           }
         },
-        error: (error) => {
-          console.error('Error loading photos:', error);
+        error: (error: any) => {
+          console.error('Error loading images:', error);
           // Если ошибка, используем главное изображение
           if (product.imageUrl) {
             this.selectedImageUrl.set(product.imageUrl);
@@ -150,6 +150,6 @@ export class ProductDetailed implements OnInit, OnDestroy {
 
   // Получить текущее выбранное изображение
   protected getCurrentImage(): string {
-    return this.selectedImageUrl() || this.productService.currentProduct()?.imageUrl || '/user.png';
+    return this.selectedImageUrl() || this.productService.currentProduct()?.imageUrl || '/product.png';
   }
 }

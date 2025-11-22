@@ -1,22 +1,22 @@
 import { Component, input, output } from '@angular/core';
-import { Photo } from '../../types/photo';
+import { Asset } from '../../types/asset';
 
 @Component({
-  selector: 'app-product-thumbnails',
+  selector: 'app-asset-thumbnails',
   imports: [],
   templateUrl: './product-thumbnails.html',
   styleUrl: './product-thumbnails.css'
 })
-export class ProductThumbnails {
+export class AssetThumbnails {
   // Входные данные
-  photos = input<Photo[]>([]);
-  selectedPhotoUrl = input<string>('');
+  assets = input<Asset[]>([]);
+  selectedAssetUrl = input<string>('');
   
   // Выходные события
-  photoSelected = output<string>();
+  assetSelected = output<string>();
   
-  // Выбор фотографии
-  selectPhoto(photoUrl: string): void {
-    this.photoSelected.emit(photoUrl);
+  // Выбор изображения
+  selectAsset(assetUrl: string): void {
+    this.assetSelected.emit(assetUrl);
   }
 }

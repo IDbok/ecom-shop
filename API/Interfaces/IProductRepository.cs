@@ -10,8 +10,9 @@ public interface IProductRepository
     Task<IReadOnlyList<Product>> GetProductsAsync();
     Task<Helpers.Pagination<Product>> GetProductsAsync(ProductFilterDto filters);
     Task<Product?> GetProductByIdAsync(long id);
-    Task<IReadOnlyList<Photo>> GetPhotosForProductAsync(long id);
-    Task<Product?> GetProductByPhotoIdAsync(int id);
+    Task<IReadOnlyList<Asset>> GetAssetsForProductAsync(long id);
+    Task<IReadOnlyList<Asset>> GetPhotosForProductAsync(long id);
+    Task<Product?> GetProductByAssetIdAsync(int id);
     Task<Product?> GetProductForUpdateAsync(long id);
     Task<bool> SaveAllAsync();
 }

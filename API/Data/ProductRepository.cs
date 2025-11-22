@@ -17,20 +17,27 @@ public class ProductRepository(AppDbContext context) : IProductRepository
     public async Task<Product?> GetProductForUpdateAsync(long id)
     {
         return await context.Products
-            .Include(p => p.Photos)
+            .Include(p => p.Assets)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public async Task<Product?> GetProductByPhotoIdAsync(int id)
+    public async Task<Product?> GetProductByAssetIdAsync(int id)
     {
         return await context.Products
-            .Include(p => p.Photos)
-            .FirstOrDefaultAsync(p => p.Photos.Any(ph => ph.Id == id));
+            .Include(p => p.Assets)
+            .FirstOrDefaultAsync(p => p.Assets.Any(a => a.Id == id));
     }
 
-    public async Task<IReadOnlyList<Photo>> GetPhotosForProductAsync(long id)
+    public async Task<IReadOnlyList<Asset>> GetAssetsForProductAsync(long id)
     {
-        return await context.Photos.Where(p => p.ProductId == id).ToListAsync();
+        return await context.Assets.Where(a => a.ProductId == id).ToListAsync();
+    }
+
+    public async Task<IReadOnlyList<Asset>> GetPhotosForProductAsync(long id)
+    {
+        return await context.Assets
+            .Where(a => a.ProductId == id && a.Type == AssetType.Image)
+            .ToListAsync();
     }
 
     public async Task<IReadOnlyList<Product>> GetProductsAsync()

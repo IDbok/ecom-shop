@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class ProductsController(IProductRepository ProductRepository,
-        IPhotoService photoService) : BaseApiController
+    public class ProductsController(IProductRepository productRepository,
+        IAssetService assetService) : BaseApiController
     {
         [HttpGet]
         public async Task<ActionResult<Helpers.Pagination<Product>>> GetProducts(
@@ -41,7 +41,7 @@ namespace API.Controllers
                 PageSize = pageSize
             };
 
-            var pagedProducts = await ProductRepository.GetProductsAsync(filters);
+            var pagedProducts = await productRepository.GetProductsAsync(filters);
             
             return Ok(pagedProducts);
         }
@@ -51,11 +51,11 @@ namespace API.Controllers
         {
             if (string.IsNullOrWhiteSpace(searchQuery))
             {
-                return Ok(await ProductRepository.GetProductsAsync());
+                return Ok(await productRepository.GetProductsAsync());
             }
             
             var filters = new ProductFilterDto { SearchQuery = searchQuery };
-            var products = await ProductRepository.GetProductsAsync(filters);
+            var products = await productRepository.GetProductsAsync(filters);
             
             return Ok(products);
         }
@@ -63,22 +63,22 @@ namespace API.Controllers
         [HttpGet("{id:long:min(1)}")]
         public async Task<ActionResult<Product>> GetProduct(long id)
         {
-            var Product = await ProductRepository.GetProductByIdAsync(id);
+            var Product = await productRepository.GetProductByIdAsync(id);
 
             if (Product == null) return NotFound();
             return Product;
         }
 
         [HttpGet("{id:long:min(1)}/photos")]
-        public async Task<ActionResult<IReadOnlyList<Photo>>> GetPhotosForProduct(long id)
+        public async Task<ActionResult<IReadOnlyList<Asset>>> GetPhotosForProduct(long id)
         {
-            return Ok(await ProductRepository.GetPhotosForProductAsync(id));
+            return Ok(await productRepository.GetPhotosForProductAsync(id));
         }
 
         [HttpGet("categories")]
         public async Task<ActionResult<IReadOnlyList<string>>> GetCategories()
         {
-            var products = await ProductRepository.GetProductsAsync();
+            var products = await productRepository.GetProductsAsync();
             var categories = products
                 .Where(p => !string.IsNullOrWhiteSpace(p.Category))
                 .Select(p => p.Category!)
@@ -100,7 +100,7 @@ namespace API.Controllers
 
             var ProductId = ProductUpdateDto.Id;
 
-            var Product = await ProductRepository.GetProductForUpdateAsync(ProductId);
+            var Product = await productRepository.GetProductForUpdateAsync(ProductId);
             if (Product == null) return NotFound();
 
             // Map the updated fields from DTO to the Product entity
@@ -137,9 +137,9 @@ namespace API.Controllers
             if (ProductUpdateDto.Description != null)
                 Product.Description = ProductUpdateDto.Description;
 
-            ProductRepository.Update(Product);
+            productRepository.Update(Product);
 
-            if (await ProductRepository.SaveAllAsync()) {
+            if (await productRepository.SaveAllAsync()) {
                 Console.WriteLine("\n!!!!! Product updated successfully.\n");
                 return NoContent();
             }
@@ -158,7 +158,7 @@ namespace API.Controllers
 
             Console.WriteLine($"Received PriceUpdateDto: {System.Text.Json.JsonSerializer.Serialize(priceUpdateDto)}");
 
-            var Product = await ProductRepository.GetProductForUpdateAsync(id);
+            var Product = await productRepository.GetProductForUpdateAsync(id);
             if (Product == null) return NotFound();
 
             if (priceUpdateDto.Amount < 0)
@@ -193,93 +193,100 @@ namespace API.Controllers
             //     Product.Price.ValidTo = priceUpdateDto.ValidTo;
             // }
 
-            ProductRepository.Update(Product);
+            productRepository.Update(Product);
 
-            if (await ProductRepository.SaveAllAsync()) return NoContent();
+            if (await productRepository.SaveAllAsync()) return NoContent();
 
             return BadRequest("Failed to update Product price");
         }
 
 
-        [HttpPost("{id:long:min(1)}/add-photo")]
-        public async Task<ActionResult<Photo>> AddPhoto(long id, [FromForm] IFormFile file)
+        [HttpPost("{id:long:min(1)}/add-asset")]
+        public async Task<ActionResult<Asset>> AddAsset(long id, [FromForm] IFormFile file)
         {
-            var Product = await ProductRepository.GetProductForUpdateAsync(id);
+            var Product = await productRepository.GetProductForUpdateAsync(id);
             if (Product == null) return NotFound();
 
-            var result = await photoService.UploadPhotoAsync(file);
+            var result = await assetService.UploadFileAsync(file);
 
-            if (result.Error != null) return BadRequest(result.Error.Message);
+            if (!result.IsSuccess) return BadRequest("Failed to upload file");
 
-            var photo = new Photo
+            var asset = new Asset
             {
-                Url = result.SecureUrl.AbsoluteUri,
+                Url = result.Url,
                 PublicId = result.PublicId,
-                ProductId = Product.Id
+                FileName = result.FileName,
+                FileSize = result.FileSize,
+                Type = result.Type,
+                ThumbnailUrl = result.ThumbnailUrl,
+                ThumbnailPublicId = result.ThumbnailPublicId,
+                Width = result.Width,
+                Height = result.Height,
+                ProductId = id
             };
 
-            Product.Photos.Add(photo);
+            Product.Assets.Add(asset);
 
-            if (await ProductRepository.SaveAllAsync())
+            if (await productRepository.SaveAllAsync())
             {
-                return CreatedAtAction(nameof(GetProduct), new { id = Product.Id }, photo);
+                return CreatedAtAction(nameof(GetProduct), new { id = Product.Id }, asset);
             }
 
-            return BadRequest("Problem adding photo");
+            return BadRequest("Problem adding asset");
         }
 
-        [HttpPut("set-main-photo/{photoId:int:min(1)}")]
-        public async Task<ActionResult> SetMainPhoto(int photoId)
+        [HttpPut("set-main-asset/{assetId:int:min(1)}")]
+        public async Task<ActionResult> SetMainAsset(int assetId)
         {
-            var Product = await ProductRepository.GetProductByPhotoIdAsync(photoId);
+            var Product = await productRepository.GetProductByAssetIdAsync(assetId);
             if (Product == null) return NotFound("Product not found");
 
-            var photo = Product.Photos.SingleOrDefault(p => p.Id == photoId);
-            if (photo == null) return NotFound("Photo not found");
+            var asset = Product.Assets.SingleOrDefault(a => a.Id == assetId);
+            if (asset == null) return NotFound("Asset not found");
 
-            if (Product.ImageUrl == photo.Url)
+            if (Product.ImageUrl == asset.Url)
             {
-                return BadRequest("This is already your main photo");
+                return BadRequest("This is already your main image");
             }
 
-            Product.ImageUrl = photo.Url;
+            Product.ImageUrl = asset.Url;
 
-            if (await ProductRepository.SaveAllAsync())
+            if (await productRepository.SaveAllAsync())
             {
                 return NoContent();
             }
 
-            return BadRequest("Problem setting main photo");
+            return BadRequest("Problem setting main image");
         }
 
-        [HttpDelete("delete-photo/{photoId}")]
-        public async Task<ActionResult> DeletePhoto(int photoId)
+        [HttpDelete("delete-asset/{assetId}")]
+        public async Task<ActionResult> DeleteAsset(int assetId)
         {
-            var Product = await ProductRepository.GetProductByPhotoIdAsync(photoId);
+            var Product = await productRepository.GetProductByAssetIdAsync(assetId);
             if (Product == null) return NotFound("Product not found");
 
-            var photo = Product.Photos.SingleOrDefault(p => p.Id == photoId);
-            if (photo == null) return NotFound("Photo not found");
+            var asset = Product.Assets.SingleOrDefault(a => a.Id == assetId);
+            if (asset == null) return NotFound("Asset not found");
 
-            if (Product.ImageUrl == photo.Url)
+            if (Product.ImageUrl == asset.Url)
             {
-                return BadRequest("You cannot delete your main photo");
+                return BadRequest("You cannot delete your main image");
             }
 
-            if (photo.PublicId != null)
+            if (asset.PublicId != null)
             {
-                var result = await photoService.DeletePhotoAsync(photo.PublicId);
+                var result = await assetService.DeleteAssetWithThumbnailAsync(asset.PublicId, asset.ThumbnailPublicId);
                 if (result.Error != null) return BadRequest(result.Error.Message);
             }
 
-            Product.Photos.Remove(photo);
+            Product.Assets.Remove(asset);
 
-            if (await ProductRepository.SaveAllAsync())
+            if (await productRepository.SaveAllAsync())
             {
                 return Ok();
             }
 
-            return BadRequest("Problem deleting the photo");
+            return BadRequest("Problem deleting the asset");
         }
     }
 

@@ -1,4 +1,6 @@
 // Product.ts
+import { Asset, AssetType } from './asset';
+
 export enum PriceKind {
   COGS = 0, // себестоимость
   WHOLESALE = 1, // оптовая цена
@@ -22,12 +24,7 @@ export interface Price {
   productId: number;
 }
 
-export interface Photo {
-  id: number;
-  url: string;
-  publicId?: string;
-  productId: number;
-}
+
 
 export interface Product {
   id: number;
@@ -41,7 +38,8 @@ export interface Product {
   category?: string;
   description?: string;
   imageUrl?: string;
-  photos?: Photo[]; // Опционально, так как JsonIgnore в C#
+  assets?: Asset[]; // Основной список файлов
+  sourceUrl?: string; // Новый URL источника
 }
 
 // Класс с методами (если нужна логика)
@@ -57,7 +55,7 @@ export class ProductModel implements Product {
   category?: string;
   description?: string;
   imageUrl?: string;
-  photos?: Photo[];
+  assets?: Asset[];
 
   constructor(data: Product) {
     this.id = data.id;
@@ -71,7 +69,7 @@ export class ProductModel implements Product {
     this.category = data.category;
     this.description = data.description;
     this.imageUrl = data.imageUrl;
-    this.photos = data.photos;
+    this.assets = data.assets;
   }
 
   // Utility methods
@@ -92,8 +90,21 @@ export class ProductModel implements Product {
     return validFrom <= now && (validTo === null || validTo > now);
   }
 
-  get mainPhoto(): Photo | undefined {
-    return this.photos?.find(photo => photo.url === this.imageUrl);
+  get mainAsset(): Asset | undefined {
+    return this.imageAssets?.find(asset => asset.url === this.imageUrl);
+  }
+
+  // Методы для работы с разными типами файлов
+  get imageAssets(): Asset[] {
+    return this.assets?.filter(asset => asset.type === AssetType.Image) || [];
+  }
+
+  get documentAssets(): Asset[] {
+    return this.assets?.filter(asset => asset.type === AssetType.Document) || [];
+  }
+
+  get videoAssets(): Asset[] {
+    return this.assets?.filter(asset => asset.type === AssetType.Video) || [];
   }
 
   get volume(): number {
