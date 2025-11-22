@@ -11,29 +11,20 @@ export interface ImageModalData {
   providedIn: 'root'
 })
 export class ImageModalService {
-  // Состояние модального окна
   private modalState = signal<ImageModalData>({
     images: [],
     currentIndex: 0,
     isVisible: false
   });
 
-  // Публичные сигналы для компонентов
+  // Public signals for components
   readonly isVisible = signal(false);
   readonly currentImage = signal<Photo | string | null>(null);
   readonly currentIndex = signal(0);
   readonly totalImages = signal(0);
 
   /**
-   * Открыть модальное окно с изображениями Photo[]
-   */
-  openModal(images: Photo[], initialIndex?: number): void;
-  /**
-   * Открыть модальное окно с изображениями string[]
-   */
-  openModal(images: string[], initialIndex?: number): void;
-  /**
-   * Реализация
+   * Open modal window with images (Photo[] or string[])
    */
   openModal(images: Photo[] | string[], initialIndex: number = 0): void {
     if (images.length === 0) return;
@@ -49,15 +40,7 @@ export class ImageModalService {
   }
 
   /**
-   * Открыть модальное окно с одним изображением Photo
-   */
-  openSingleImage(image: Photo): void;
-  /**
-   * Открыть модальное окно с одним изображением string
-   */
-  openSingleImage(image: string): void;
-  /**
-   * Реализация
+   * Open modal window with single image (Photo or string)
    */
   openSingleImage(image: Photo | string): void {
     if (typeof image === 'string') {
@@ -68,7 +51,7 @@ export class ImageModalService {
   }
 
   /**
-   * Закрыть модальное окно
+   * Close modal window
    */
   closeModal(): void {
     this.modalState.update(state => ({
@@ -82,7 +65,7 @@ export class ImageModalService {
   }
 
   /**
-   * Перейти к следующему изображению
+   * Navigate to next image
    */
   nextImage(): void {
     const state = this.modalState();
@@ -94,7 +77,7 @@ export class ImageModalService {
   }
 
   /**
-   * Перейти к предыдущему изображению
+   * Navigate to previous image
    */
   prevImage(): void {
     const state = this.modalState();
@@ -109,7 +92,7 @@ export class ImageModalService {
   }
 
   /**
-   * Обработка клавиш
+   * Handle keyboard input
    */
   handleKeyDown(event: KeyboardEvent): void {
     if (!this.isVisible()) return;
@@ -128,14 +111,14 @@ export class ImageModalService {
   }
 
   /**
-   * Получить URL изображения (поддерживает как Photo объекты, так и строки)
+   * Get image URL (supports both Photo objects and strings)
    */
   getImageUrl(image: Photo | string): string {
     return typeof image === 'string' ? image : image.url;
   }
 
   /**
-   * Обновить публичное состояние
+   * Update public state
    */
   private updatePublicState(): void {
     const state = this.modalState();
@@ -152,14 +135,14 @@ export class ImageModalService {
   }
 
   /**
-   * Заблокировать прокрутку body
+   * Block body scroll
    */
   private blockBodyScroll(): void {
     document.body.style.overflow = 'hidden';
   }
 
   /**
-   * Восстановить прокрутку body
+   * Restore body scroll
    */
   private restoreBodyScroll(): void {
     document.body.style.overflow = 'auto';

@@ -1,7 +1,7 @@
 @if(productService.currentProduct(); as product){
 <div class="flex gap-6">
     <div class="card bg-base-100 flex flex-row items-start h-[85vh] w-2/4">
-        <!-- Миниатюры слева -->
+        <!-- Thumbnails on the left -->
         @if (photos().length > 1) {
             <div class="p-4 flex flex-col gap-2 w-20 flex-shrink-0">
                 @for (photo of photos(); track photo.id) {
@@ -19,14 +19,14 @@
             </div>
         }
         
-        <!-- Основное изображение -->
+        <!-- Main image -->
         <div class="flex-1 flex items-center justify-center p-4 
             border-2 rounded-lg">
             <img 
               src="{{getCurrentImage()}}" 
               alt="image of product"
               class="max-w-full max-h-full object-contain rounded-2xl cursor-pointer hover:opacity-90 transition-opacity" 
-              (click)="openMainImageModal()" />
+              (click)="openImageModal()" />
         </div>
     </div>
 
@@ -54,7 +54,7 @@
         </div>
         <div class="divider"></div>
         
-        <!-- Навигационные вкладки -->
+        <!-- Navigation tabs -->
         @if(editModeEnabled()) {
         <div class="flex gap-4 mb-4">
             <!-- <button 

@@ -19,18 +19,19 @@ export class ProductDetailed implements OnInit, OnDestroy {
   protected productService = inject(ProductService);
   protected imageModalService = inject(ImageModalService);
   
-  protected isAdmin = signal(true); // Заглушка для примера
+  protected isAdmin = signal(true); // Placeholder for example
   protected currentRoute = signal<string>('');
-  protected editModeEnabled = signal(false); // Новый сигнал для управления доступом к вкладкам
+  protected editModeEnabled = signal(false);
   
-  // Для миниатюр
+  // For thumbnails and modal
   protected photos = signal<Asset[]>([]);
+  protected allImages = signal<string[]>([]); // All image URLs for modal
   protected selectedImageUrl = signal<string>('');
   
-  // Subject для автоматической отписки
+  // Subject for automatic unsubscription
   private destroy$ = new Subject<void>();
   
-  // Computed property для проверки, находимся ли мы в режиме редактирования
+  // Computed property to check if we are in edit mode
   protected isEditMode = computed(() => {
     return this.currentRoute().endsWith('/edit');
   });
@@ -38,32 +39,32 @@ export class ProductDetailed implements OnInit, OnDestroy {
   ngOnInit(): void {
     const product = this.route.snapshot.data['product'] as Product;
     console.log('ProductDetailed initialized with product:', product);
-    // Устанавливаем продукт в глобальное хранилище через сервис
+    // Set the product in global storage via service
     if (product && product.id != this.productService.currentProduct()?.id) {
       console.log('Setting current product in ProductService');
       this.productService.setCurrentProduct(product);
     }
     
-    // Загружаем фотографии для миниатюр
+    // Load photos for thumbnails
     this.loadPhotos(product);
     
-    // Устанавливаем начальное состояние роута
+    // Set initial route state
     this.updateCurrentRoute();
     
-    // Проверяем, не пытается ли пользователь получить прямой доступ к edit/photos
+    // Check if user is trying to access edit/photos directly
     this.checkInitialRoute();
     
-    // Подписываемся на изменения роута с автоматической отпиской
+    // Subscribe to route changes with automatic unsubscription
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      takeUntil(this.destroy$) // ← Подписка будет активна ПОКА destroy$ не испустит значение
+      takeUntil(this.destroy$) // ← Subscription will be active UNTIL destroy$ emits a value
     ).subscribe(() => {
       this.updateCurrentRoute();
     });
   }
   
   ngOnDestroy(): void {
-    this.destroy$.next(); // ← Испускаем значение - все подписки с takeUntil(destroy$) завершаются
+    this.destroy$.next(); // ← Emit value - all subscriptions with takeUntil(destroy$) complete
     this.destroy$.complete();
   }
   
@@ -73,7 +74,7 @@ export class ProductDetailed implements OnInit, OnDestroy {
 
   private checkInitialRoute(): void {
     const currentUrl = this.router.url;
-    // Если пользователь пытается получить прямой доступ к edit или photos без включенного режима редактирования
+    // If user tries to access edit or photos directly without edit mode enabled
     if ((currentUrl.endsWith('/edit') || currentUrl.endsWith('/photos')) && !this.editModeEnabled()) {
       this.router.navigate(['description'], { relativeTo: this.route });
     }
@@ -97,7 +98,7 @@ export class ProductDetailed implements OnInit, OnDestroy {
 
   protected exitEditMode(): void {
     this.editModeEnabled.set(false);
-    // Если пользователь находится на вкладке Edit или Photos, перенаправляем на Description
+    // If user is on Edit or Photos tab, redirect to Description
     const currentUrl = this.currentRoute();
     if (currentUrl.endsWith('/edit') || currentUrl.endsWith('/photos')) {
       this.router.navigate(['description'], { relativeTo: this.route });
@@ -111,45 +112,81 @@ export class ProductDetailed implements OnInit, OnDestroy {
     }
   }
 
-  // Метод для открытия модального окна главного изображения
-  protected openMainImageModal(): void {
-    const currentImage = this.selectedImageUrl() || this.productService.currentProduct()?.imageUrl;
-    if (currentImage) {
-      this.imageModalService.openSingleImage(currentImage);
-    }
+  /**
+   * Open modal window with all product images
+   * Opens at the index of currently selected image
+   */
+  protected openImageModal(): void {
+    const currentImage = this.selectedImageUrl();
+    const images = this.allImages();
+    
+    if (images.length === 0) return;
+    
+    // Find index of current image in the array
+    const currentIndex = images.findIndex(img => img === currentImage);
+    
+    // Open modal with all images, starting from current index
+    this.imageModalService.openModal(images, currentIndex >= 0 ? currentIndex : 0);
   }
 
-  // Простая загрузка изображений
+  /**
+   * Load product photos and build complete image array
+   */
   private loadPhotos(product: Product): void {
     if (product?.id) {
       this.productService.getProductImages(product.id).subscribe({
         next: (assets: Asset[]) => {
           this.photos.set(assets);
-          // Устанавливаем первое изображение как выбранное
-          if (assets.length > 0) {
-            this.selectedImageUrl.set(assets[0].url);
-          } else if (product.imageUrl) {
+          
+          // Build complete image array: main image + additional photos
+          const imageUrls: string[] = [];
+          
+          // Add main image first if it exists
+          if (product.imageUrl) {
+            imageUrls.push(product.imageUrl);
             this.selectedImageUrl.set(product.imageUrl);
           }
+          
+          // Add additional photos (skip if same as main image)
+          assets.forEach(asset => {
+            if (asset.url !== product.imageUrl) {
+              imageUrls.push(asset.url);
+            }
+          });
+          
+          // If no main image, use first asset
+          if (!product.imageUrl && assets.length > 0) {
+            this.selectedImageUrl.set(assets[0].url);
+          }
+          
+          // Fallback to placeholder if no images
+          if (imageUrls.length === 0) {
+            imageUrls.push('/product.png');
+            this.selectedImageUrl.set('/product.png');
+          }
+          
+          this.allImages.set(imageUrls);
         },
         error: (error: any) => {
           console.error('Error loading images:', error);
-          // Если ошибка, используем главное изображение
-          if (product.imageUrl) {
-            this.selectedImageUrl.set(product.imageUrl);
-          }
+          
+          // Fallback to main image or placeholder
+          const fallbackImage = product.imageUrl || '/product.png';
+          this.selectedImageUrl.set(fallbackImage);
+          this.allImages.set([fallbackImage]);
         }
       });
     }
   }
-
-  // Обработка выбора фотографии из миниатюр
+  // Handle photo selection from thumbnails
   protected onPhotoSelected(photoUrl: string): void {
     this.selectedImageUrl.set(photoUrl);
   }
 
-  // Получить текущее выбранное изображение
+  // Get the current selected image
   protected getCurrentImage(): string {
-    return this.selectedImageUrl() || this.productService.currentProduct()?.imageUrl || '/product.png';
+    return this.selectedImageUrl() || 
+      this.productService.currentProduct()?.imageUrl || 
+      '/product.png';
   }
 }
